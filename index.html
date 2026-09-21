@@ -508,6 +508,36 @@ th, td {
     }
 }
 
+/* BORROW / LEND PAYMENT IMPROVEMENT */
+.payment-btn {
+    background: #e3a326;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 105px;
+}
+.borrow-card td:last-child { white-space: nowrap; }
+.payment-modal {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.45); padding:18px;
+    align-items:center; justify-content:center;
+}
+.payment-modal.show { display:flex; }
+.payment-modal-box {
+    width:min(460px,100%); background:#fff; border-radius:18px;
+    padding:24px; box-shadow:0 16px 45px rgba(0,0,0,.22);
+}
+.payment-modal-box h3 { margin:0 0 8px; font-size:24px; }
+.payment-remaining { margin-bottom:18px; font-size:17px; }
+.payment-modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+.payment-save, .payment-cancel { border:0; border-radius:10px; min-height:50px; font-size:16px; cursor:pointer; }
+.payment-save { background:#66985f; color:#fff; font-weight:700; }
+.payment-cancel { background:#eef0f2; color:#222; }
+@media(max-width:800px){
+  .payment-btn { min-width:100px; padding:10px 14px; }
+  .payment-modal-box { padding:20px; }
+}
+
 </style>
 </head>
 
@@ -573,31 +603,6 @@ th, td {
 
 </div>
 
-
-<div class="summary">
-
-<div class="summary-card">
-<div class="summary-title">Total Income</div>
-<div class="summary-number total-income">
-$<span id="totalIncome">0.00</span>
-</div>
-</div>
-
-<div class="summary-card">
-<div class="summary-title">Total Expense</div>
-<div class="summary-number total-expense">
-$<span id="totalExpense">0.00</span>
-</div>
-</div>
-
-<div class="summary-card">
-<div class="summary-title">Balance</div>
-<div class="summary-number total-balance">
-$<span id="balance">0.00</span>
-</div>
-</div>
-
-</div>
 
 <div class="card month-summary">
 <h2><span id="monthSummaryTitle">Monthly Summary</span></h2>
@@ -763,6 +768,26 @@ $<span id="iOwe">0.00</span>
 
 </div>
 
+
+<div id="paymentModal" class="payment-modal" onclick="closePaymentModal(event)">
+  <div class="payment-modal-box" onclick="event.stopPropagation()">
+    <h3>Payment</h3>
+    <div id="paymentPerson" style="font-weight:700;margin-bottom:4px"></div>
+    <div class="payment-remaining">Remaining: $<span id="paymentRemaining">0.00</span></div>
+    <div class="borrow-field">
+      <label>Payment Date</label>
+      <input type="date" id="paymentDate">
+    </div>
+    <div class="borrow-field">
+      <label>Payment Amount $</label>
+      <input type="number" id="paymentAmount" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="payment-modal-actions">
+      <button class="payment-cancel" onclick="closePaymentModal()">Cancel</button>
+      <button class="payment-save" onclick="savePayment()">Save Payment</button>
+    </div>
+  </div>
+</div>
 
 <script>
 
@@ -1569,111 +1594,52 @@ function getTotalPaid(record) {
 
 function addPayment(index) {
 
-    let record =
-    borrowRecords[index];
-
-    let paid =
-    getTotalPaid(record);
-
-    let remaining =
-    Math.max(
-        0,
-        Number(record.amount) - paid
-    );
-
+    let record = borrowRecords[index];
+    let paid = getTotalPaid(record);
+    let remaining = Math.max(0, Number(record.amount) - paid);
 
     if (remaining <= 0) {
-
         alert("This record is already paid.");
-
-        return;
-
-    }
-
-
-    let value =
-    prompt(
-        "Remaining: $" +
-        remaining.toFixed(2) +
-        "\n\nEnter payment amount:"
-    );
-
-
-    if (value === null) {
         return;
     }
 
+    window.currentPaymentIndex = index;
+    document.getElementById("paymentPerson").innerText = record.name;
+    document.getElementById("paymentRemaining").innerText = remaining.toFixed(2);
+    document.getElementById("paymentDate").value = getTodayText();
+    document.getElementById("paymentAmount").value = "";
+    document.getElementById("paymentAmount").max = remaining;
+    document.getElementById("paymentModal").classList.add("show");
+    setTimeout(function(){ document.getElementById("paymentAmount").focus(); }, 50);
+}
 
-    let amount = Number(value);
+function closePaymentModal(event) {
+    if (event && event.target !== document.getElementById("paymentModal")) return;
+    document.getElementById("paymentModal").classList.remove("show");
+}
 
+function savePayment() {
+    let index = window.currentPaymentIndex;
+    let record = borrowRecords[index];
+    if (!record) return;
 
-    if (
-        !amount ||
-        amount <= 0
-    ) {
+    let paid = getTotalPaid(record);
+    let remaining = Math.max(0, Number(record.amount) - paid);
+    let amount = Number(document.getElementById("paymentAmount").value);
+    let paymentDate = document.getElementById("paymentDate").value;
 
-        alert("Invalid amount.");
+    if (!amount || amount <= 0) { alert("Please enter payment amount."); return; }
+    if (amount > remaining) { alert("Payment cannot be more than remaining amount."); return; }
+    if (!paymentDate) { alert("Please select payment date."); return; }
 
-        return;
+    if (!record.payments) record.payments = [];
+    record.payments.push({ amount: amount, date: paymentDate });
 
-    }
-
-
-    if (amount > remaining) {
-
-        alert(
-            "Payment cannot be more than remaining amount."
-        );
-
-        return;
-
-    }
-
-
-    let paymentDate =
-    prompt(
-        "Payment date:",
-        getTodayText()
-    );
-
-
-    if (!paymentDate) {
-        return;
-    }
-
-
-    if (!record.payments) {
-        record.payments = [];
-    }
-
-
-    record.payments.push({
-
-        amount: amount,
-
-        date: paymentDate
-
-    });
-
-
-    let newPaid =
-    getTotalPaid(record);
-
-
-    if (
-        newPaid >=
-        Number(record.amount)
-    ) {
-
-        record.settled = true;
-
-    }
-
+    if (getTotalPaid(record) >= Number(record.amount)) record.settled = true;
 
     saveBorrowRecords();
-
     showBorrowRecords();
-
+    document.getElementById("paymentModal").classList.remove("show");
 }
 
 
