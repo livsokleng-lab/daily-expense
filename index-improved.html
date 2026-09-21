@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Expense</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f6f8;
+    margin: 0;
+    padding: 30px;
+    color: #222;
+}
+
+.container {
+    max-width: 1150px;
+    margin: auto;
+}
+
+h1 {
+    font-size: 36px;
+    margin-bottom: 25px;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 22px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+}
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 7px;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.field {
+    max-width: 500px;
+    margin-bottom: 18px;
+}
+
+/* CATEGORY */
+
+.categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.category-button {
+    width: 120px;
+    height: 95px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.category-button:hover {
+    background: #f3f5f7;
+}
+
+.category-button.selected {
+    border: 2px solid #4f9653;
+    background: #f0f8f0;
+}
+
+.category-icon {
+    display: block;
+    font-size: 30px;
+    margin-bottom: 5px;
+}
+
+.manage-button {
+    padding: 10px 15px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+/* MONEY */
+
+.money-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 70px;
+    margin-top: 5px;
+}
+
+.income-label {
+    color: #39863c;
+}
+
+.expense-label {
+    color: #c9362a;
+}
+
+.main-button {
+    margin-top: 18px;
+    padding: 14px 25px;
+    border: none;
+    border-radius: 9px;
+    background: #529657;
+    color: white;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+/* SUMMARY */
+
+.summary {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+.summary-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 2px 10px rgba(0,0,0,.06);
+}
+
+.summary-title {
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.summary-number {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.total-income {
+    color: #39863c;
+}
+
+.total-expense {
+    color: #c9362a;
+}
+
+.total-balance {
+    color: #4169d8;
+}
+
+/* TABLE */
+
+.records-card {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th {
+    background: #f1f3f5;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.edit-btn,
+.payment-btn,
+.settle-btn,
+.delete-btn {
+    border: none;
+    color: white;
+    padding: 7px 11px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin: 2px;
+}
+
+.edit-btn {
+    background: #5b7ee5;
+}
+
+.delete-btn {
+    background: #d7473d;
+}
+
+.payment-btn {
+    background: #e3a326;
+}
+
+.settle-btn {
+    background: #7657ef;
+}
+
+/* FILTER */
+
+.record-filter {
+    display: flex;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 10px;
+}
+
+.record-filter input {
+    width: 190px;
+}
+
+.filter-button {
+    padding: 11px 15px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+/* BORROW */
+
+.borrow-card {
+    border-left: 5px solid #7b61ff;
+}
+
+.borrow-title {
+    font-size: 27px;
+}
+
+.borrow-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+}
+
+.borrow-field {
+    margin-bottom: 18px;
+}
+
+.borrow-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.borrow-summary-box {
+    background: #f7f7fa;
+    padding: 18px;
+    border-radius: 10px;
+}
+
+.borrow-total {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 6px;
+}
+
+.owe-me {
+    color: #39863c;
+}
+
+.i-owe {
+    color: #c9362a;
+}
+
+/* MANAGE CATEGORY */
+
+#manageBox {
+    display: none;
+    margin-top: 15px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+}
+
+.manage-row {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.manage-row input {
+    padding: 9px;
+}
+
+.small-btn {
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+@media(max-width:800px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .money-row,
+    .borrow-row,
+    .borrow-summary,
+    .summary {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+}
+
+/* FIRST IMPROVEMENT VERSION */
+.export-button {
+    padding: 11px 16px;
+    border: 1px solid #cfd7df;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-left: 8px;
+}
+
+.month-summary {
+    margin-bottom: 22px;
+}
+
+.month-summary h2 {
+    margin: 0 0 14px;
+}
+
+.month-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.month-mini-card {
+    background: #f7f9fb;
+    border: 1px solid #e7ebef;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.month-mini-label {
+    color: #667085;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.month-mini-number {
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.category-breakdown {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 8px 20px;
+}
+
+.category-stat {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid #edf0f2;
+}
+
+@media(max-width:800px) {
+    body {
+        padding: 12px;
+        background: #f4f7f8;
+    }
+
+    .container {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 30px;
+        margin: 8px 0 18px;
+    }
+
+    .card {
+        padding: 17px;
+        border-radius: 16px;
+        margin-bottom: 16px;
+    }
+
+    .field {
+        max-width: none;
+    }
+
+    label {
+        font-size: 17px;
+    }
+
+    input, select {
+        min-height: 50px;
+        padding: 13px;
+        font-size: 17px;
+    }
+
+    .categories {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 8px;
+    }
+
+    .category-button {
+        width: 100%;
+        height: 88px;
+        font-size: 14px;
+    }
+
+    .category-icon {
+        font-size: 27px;
+    }
+
+    .main-button,
+    .manage-button,
+    .filter-button,
+    .export-button {
+        min-height: 48px;
+        font-size: 16px;
+    }
+
+    .main-button {
+        width: 100%;
+    }
+
+    .summary {
+        grid-template-columns: repeat(3,1fr);
+        gap: 8px;
+    }
+
+    .summary-card {
+        padding: 14px 10px;
+        border-radius: 13px;
+    }
+
+    .summary-title {
+        font-size: 13px;
+    }
+
+    .summary-number {
+        font-size: 20px;
+    }
+
+    .record-filter {
+        flex-wrap: wrap;
+        align-items: end;
+    }
+
+    .record-filter input {
+        width: 100%;
+    }
+
+    .record-filter > div {
+        flex: 1 1 100%;
+    }
+
+    .record-filter .filter-button,
+    .record-filter .export-button {
+        flex: 1;
+        margin-left: 0;
+    }
+
+    .month-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-breakdown {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        min-width: 760px;
+        font-size: 14px;
+    }
+
+    .borrow-title {
+        font-size: 24px;
+    }
+
+    .manage-row {
+        grid-template-columns: 65px 1fr;
+    }
+
+    .manage-row > div {
+        grid-column: 1 / -1;
+    }
+}
+
+/* BORROW / LEND PAYMENT IMPROVEMENT */
+.payment-btn {
+    background: #e3a326;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 105px;
+}
+.borrow-card td:last-child { white-space: nowrap; }
+.payment-modal {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(0,0,0,.45); padding:18px;
+    align-items:center; justify-content:center;
+}
+.payment-modal.show { display:flex; }
+.payment-modal-box {
+    width:min(460px,100%); background:#fff; border-radius:18px;
+    padding:24px; box-shadow:0 16px 45px rgba(0,0,0,.22);
+}
+.payment-modal-box h3 { margin:0 0 8px; font-size:24px; }
+.payment-remaining { margin-bottom:18px; font-size:17px; }
+.payment-modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+.payment-save, .payment-cancel { border:0; border-radius:10px; min-height:50px; font-size:16px; cursor:pointer; }
+.payment-save { background:#66985f; color:#fff; font-weight:700; }
+.payment-cancel { background:#eef0f2; color:#222; }
+@media(max-width:800px){
+  .payment-btn { min-width:100px; padding:10px 14px; }
+  .payment-modal-box { padding:20px; }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Daily Expense</h1>
+
+<div class="card">
+
+<div class="field">
+<label>Date</label>
+<input type="date" id="date">
+</div>
+
+<div class="field">
+<label>Description</label>
+<input type="text" id="description" placeholder="What is this for?">
+</div>
+
+<label>Category</label>
+
+<div class="categories" id="categories"></div>
+
+<button class="manage-button" onclick="toggleManage()">
+⚙️ Manage Categories
+</button>
+
+<div id="manageBox">
+<h3>Manage Categories</h3>
+<div id="manageList"></div>
+
+<hr>
+
+<h3>Add New Category</h3>
+
+<div class="manage-row">
+<input id="newIcon" placeholder="Icon">
+<input id="newName" placeholder="Category name">
+<button class="small-btn" onclick="addCategory()">Add</button>
+</div>
+
+</div>
+
+<div class="money-row">
+
+<div>
+<label class="income-label">Income $</label>
+<input type="number" id="income" placeholder="0.00" step="0.01">
+</div>
+
+<div>
+<label class="expense-label">Expense $</label>
+<input type="number" id="expense" placeholder="0.00" step="0.01">
+</div>
+
+</div>
+
+<button class="main-button" onclick="addRecord()" id="addButton">
+＋ Add Record
+</button>
+
+</div>
+
+
+<div class="summary">
+
+<div class="summary-card">
+<div class="summary-title">Total Income</div>
+<div class="summary-number total-income">
+$<span id="totalIncome">0.00</span>
+</div>
+</div>
+
+<div class="summary-card">
+<div class="summary-title">Total Expense</div>
+<div class="summary-number total-expense">
+$<span id="totalExpense">0.00</span>
+</div>
+</div>
+
+<div class="summary-card">
+<div class="summary-title">Balance</div>
+<div class="summary-number total-balance">
+$<span id="balance">0.00</span>
+</div>
+</div>
+
+</div>
+
+<div class="card month-summary">
+<h2><span id="monthSummaryTitle">Monthly Summary</span></h2>
+
+<div class="month-summary-grid">
+<div class="month-mini-card">
+<div class="month-mini-label">Income</div>
+<div class="month-mini-number total-income">$<span id="monthIncome">0.00</span></div>
+</div>
+
+<div class="month-mini-card">
+<div class="month-mini-label">Expense</div>
+<div class="month-mini-number total-expense">$<span id="monthExpense">0.00</span></div>
+</div>
+
+<div class="month-mini-card">
+<div class="month-mini-label">Balance</div>
+<div class="month-mini-number total-balance">$<span id="monthBalance">0.00</span></div>
+</div>
+</div>
+
+<h3>Expense by Category</h3>
+<div id="categoryBreakdown" class="category-breakdown"></div>
+</div>
+
+
+<div class="card records-card">
+
+<h2>Records</h2>
+
+<div class="record-filter">
+
+<div>
+<label>Month</label>
+<input type="month" id="recordMonth" onchange="showRecords()">
+</div>
+
+<button class="filter-button" onclick="showAllRecords()">
+Show All
+</button>
+
+<button class="export-button" onclick="exportCSV()">
+Export Excel / CSV
+</button>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Category</th>
+<th>Description</th>
+<th>Income</th>
+<th>Expense</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="records"></tbody>
+
+</table>
+
+</div>
+
+
+<div class="card borrow-card">
+
+<h2 class="borrow-title">💸 Borrow / Lend</h2>
+
+<div class="borrow-row">
+
+<div>
+
+<div class="borrow-field">
+<label>Date</label>
+<input type="date" id="borrowDate">
+</div>
+
+<div class="borrow-field">
+<label>Name</label>
+<input type="text" id="borrowName" placeholder="Who?">
+</div>
+
+<div class="borrow-field">
+<label>Note</label>
+<input type="text" id="borrowNote" placeholder="Optional note">
+</div>
+
+</div>
+
+<div>
+
+<div class="borrow-field">
+<label>Type</label>
+
+<select id="borrowType">
+<option value="lent">Money I Lent — They owe me</option>
+<option value="borrowed">Money I Borrowed — I owe them</option>
+</select>
+
+</div>
+
+<div class="borrow-field">
+<label>Amount $</label>
+<input type="number" id="borrowAmount" placeholder="0.00" step="0.01">
+</div>
+
+</div>
+
+</div>
+
+<button class="main-button" onclick="addBorrowRecord()">
+＋ Add Borrow / Lend
+</button>
+
+
+<div class="borrow-summary">
+
+<div class="borrow-summary-box">
+They Owe Me
+<div class="borrow-total owe-me">
+$<span id="theyOwe">0.00</span>
+</div>
+</div>
+
+<div class="borrow-summary-box">
+I Owe
+<div class="borrow-total i-owe">
+$<span id="iOwe">0.00</span>
+</div>
+</div>
+
+</div>
+
+
+<div class="records-card">
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Type</th>
+<th>Name</th>
+<th>Original</th>
+<th>Paid</th>
+<th>Remaining</th>
+<th>Note / Payment History</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="borrowRecords"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div id="paymentModal" class="payment-modal" onclick="closePaymentModal(event)">
+  <div class="payment-modal-box" onclick="event.stopPropagation()">
+    <h3>Payment</h3>
+    <div id="paymentPerson" style="font-weight:700;margin-bottom:4px"></div>
+    <div class="payment-remaining">Remaining: $<span id="paymentRemaining">0.00</span></div>
+    <div class="borrow-field">
+      <label>Payment Date</label>
+      <input type="date" id="paymentDate">
+    </div>
+    <div class="borrow-field">
+      <label>Payment Amount $</label>
+      <input type="number" id="paymentAmount" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="payment-modal-actions">
+      <button class="payment-cancel" onclick="closePaymentModal()">Cancel</button>
+      <button class="payment-save" onclick="savePayment()">Save Payment</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/* DATA */
+
+let records =
+JSON.parse(localStorage.getItem("expenseRecords")) || [];
+
+let defaultCategories = [
+{icon:"🍴",name:"Food"},
+{icon:"🚗",name:"Transport"},
+{icon:"⛽",name:"Fuel"},
+{icon:"📦",name:"Express"},
+{icon:"👕",name:"Clothes"},
+{icon:"🛍️",name:"Shopping"},
+{icon:"🏠",name:"Home"},
+{icon:"💊",name:"Health"},
+{icon:"✈️",name:"Travel"},
+{icon:"💵",name:"Salary"}
+];
+
+let categories =
+JSON.parse(localStorage.getItem("expenseCategories"));
+
+if (!categories) {
+    categories = defaultCategories;
+    localStorage.setItem(
+        "expenseCategories",
+        JSON.stringify(categories)
+    );
+}
+
+let selectedCategory = "";
+
+let editIndex = null;
+
+let borrowRecords =
+JSON.parse(localStorage.getItem("borrowRecords")) || [];
+
+
+/* CATEGORY */
+
+function showCategories() {
+
+    let box = document.getElementById("categories");
+
+    box.innerHTML = "";
+
+    categories.forEach(function(cat) {
+
+        let button = document.createElement("button");
+
+        button.className = "category-button";
+
+        if (
+            selectedCategory ===
+            cat.icon + " " + cat.name
+        ) {
+            button.classList.add("selected");
+        }
+
+        button.innerHTML =
+        '<span class="category-icon">' +
+        cat.icon +
+        '</span>' +
+        cat.name;
+
+        button.onclick = function() {
+
+            selectedCategory =
+            cat.icon + " " + cat.name;
+
+            showCategories();
+
+        };
+
+        box.appendChild(button);
+
+    });
+
+
+    let addButton =
+    document.createElement("button");
+
+    addButton.className =
+    "category-button";
+
+    addButton.innerHTML =
+    '<span class="category-icon">➕</span>Add';
+
+    addButton.onclick = function() {
+
+        document.getElementById(
+            "manageBox"
+        ).style.display = "block";
+
+        document.getElementById(
+            "newName"
+        ).focus();
+
+    };
+
+    box.appendChild(addButton);
+
+}
+
+
+function toggleManage() {
+
+    let box =
+    document.getElementById("manageBox");
+
+    if (box.style.display === "block") {
+
+        box.style.display = "none";
+
+    } else {
+
+        box.style.display = "block";
+
+        showManageCategories();
+
+    }
+
+}
+
+
+function showManageCategories() {
+
+    let box =
+    document.getElementById("manageList");
+
+    box.innerHTML = "";
+
+    categories.forEach(function(cat,index) {
+
+        let row =
+        document.createElement("div");
+
+        row.className = "manage-row";
+
+        row.innerHTML =
+        '<input id="icon' + index +
+        '" value="' + cat.icon + '">' +
+
+        '<input id="name' + index +
+        '" value="' + cat.name + '">' +
+
+        '<div>' +
+        '<button class="small-btn" onclick="saveCategory(' +
+        index + ')">Save</button> ' +
+
+        '<button class="small-btn" onclick="deleteCategory(' +
+        index + ')">Delete</button>' +
+        '</div>';
+
+        box.appendChild(row);
+
+    });
+
+}
+
+
+function saveCategory(index) {
+
+    let icon =
+    document.getElementById(
+        "icon" + index
+    ).value.trim();
+
+    let name =
+    document.getElementById(
+        "name" + index
+    ).value.trim();
+
+    if (!name) {
+        alert("Please enter a category name.");
+        return;
+    }
+
+    categories[index] = {
+        icon: icon || "📌",
+        name: name
+    };
+
+    saveCategories();
+
+}
+
+
+function deleteCategory(index) {
+
+    if (!confirm("Delete this category?")) {
+        return;
+    }
+
+    categories.splice(index,1);
+
+    saveCategories();
+
+}
+
+
+function addCategory() {
+
+    let icon =
+    document.getElementById(
+        "newIcon"
+    ).value.trim();
+
+    let name =
+    document.getElementById(
+        "newName"
+    ).value.trim();
+
+    if (!name) {
+        alert("Please enter a category name.");
+        return;
+    }
+
+    categories.push({
+        icon: icon || "📌",
+        name: name
+    });
+
+    document.getElementById(
+        "newIcon"
+    ).value = "";
+
+    document.getElementById(
+        "newName"
+    ).value = "";
+
+    saveCategories();
+
+}
+
+
+function saveCategories() {
+
+    localStorage.setItem(
+        "expenseCategories",
+        JSON.stringify(categories)
+    );
+
+    showCategories();
+
+    showManageCategories();
+
+}
+
+
+/* EXPENSE RECORD */
+
+function addRecord() {
+
+    let date =
+    document.getElementById("date").value;
+
+    let description =
+    document.getElementById(
+        "description"
+    ).value.trim();
+
+    let income =
+    Number(
+        document.getElementById(
+            "income"
+        ).value
+    ) || 0;
+
+    let expense =
+    Number(
+        document.getElementById(
+            "expense"
+        ).value
+    ) || 0;
+
+
+    if (!date) {
+
+        alert("Please select a date.");
+
+        return;
+
+    }
+
+
+    if (income <= 0 && expense <= 0) {
+
+        alert("Please enter income or expense.");
+
+        return;
+
+    }
+
+
+    let record = {
+
+        date: date,
+
+        category:
+        selectedCategory || "📌 Other",
+
+        description: description,
+
+        income: income,
+
+        expense: expense
+
+    };
+
+
+    if (editIndex === null) {
+
+        records.push(record);
+
+    } else {
+
+        records[editIndex] = record;
+
+        editIndex = null;
+
+        document.getElementById(
+            "addButton"
+        ).innerText = "＋ Add Record";
+
+    }
+
+
+    localStorage.setItem(
+        "expenseRecords",
+        JSON.stringify(records)
+    );
+
+
+    clearExpenseForm();
+
+    showRecords();
+
+}
+
+
+function clearExpenseForm() {
+
+    document.getElementById(
+        "description"
+    ).value = "";
+
+    document.getElementById(
+        "income"
+    ).value = "";
+
+    document.getElementById(
+        "expense"
+    ).value = "";
+
+    selectedCategory = "";
+
+    showCategories();
+
+}
+
+
+function editRecord(index) {
+
+    let record = records[index];
+
+    document.getElementById(
+        "date"
+    ).value = record.date;
+
+    document.getElementById(
+        "description"
+    ).value = record.description;
+
+    document.getElementById(
+        "income"
+    ).value =
+    record.income || "";
+
+    document.getElementById(
+        "expense"
+    ).value =
+    record.expense || "";
+
+    selectedCategory =
+    record.category || "";
+
+    editIndex = index;
+
+    document.getElementById(
+        "addButton"
+    ).innerText =
+    "✓ Save Changes";
+
+    showCategories();
+
+    window.scrollTo({
+        top:0,
+        behavior:"smooth"
+    });
+
+}
+
+
+function deleteRecord(index) {
+
+    if (!confirm("Delete this record?")) {
+        return;
+    }
+
+    records.splice(index,1);
+
+    localStorage.setItem(
+        "expenseRecords",
+        JSON.stringify(records)
+    );
+
+    showRecords();
+
+}
+
+
+/* SHOW RECORDS + MONTH FILTER */
+
+function showRecords() {
+
+    let table =
+    document.getElementById("records");
+
+    table.innerHTML = "";
+
+
+    let month =
+    document.getElementById(
+        "recordMonth"
+    ).value;
+
+
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+
+    records.forEach(function(record,index) {
+
+        totalIncome +=
+        Number(record.income || 0);
+
+        totalExpense +=
+        Number(record.expense || 0);
+
+
+        if (
+            month &&
+            !record.date.startsWith(month)
+        ) {
+            return;
+        }
+
+
+        let row =
+        table.insertRow();
+
+
+        row.insertCell(0).innerText =
+        record.date;
+
+
+        row.insertCell(1).innerText =
+        record.category || "📌 Other";
+
+
+        row.insertCell(2).innerText =
+        record.description || "";
+
+
+        row.insertCell(3).innerText =
+        Number(record.income || 0) > 0
+        ? "$" +
+        Number(record.income).toFixed(2)
+        : "";
+
+
+        row.insertCell(4).innerText =
+        Number(record.expense || 0) > 0
+        ? "$" +
+        Number(record.expense).toFixed(2)
+        : "";
+
+
+        let actionCell =
+        row.insertCell(5);
+
+
+        let editButton =
+        document.createElement("button");
+
+        editButton.innerText = "Edit";
+        editButton.className = "edit-btn";
+
+        editButton.onclick = function() {
+            editRecord(index);
+        };
+
+
+        let deleteButton =
+        document.createElement("button");
+
+        deleteButton.innerText = "Delete";
+        deleteButton.className =
+        "delete-btn";
+
+        deleteButton.onclick = function() {
+            deleteRecord(index);
+        };
+
+
+        actionCell.appendChild(
+            editButton
+        );
+
+        actionCell.appendChild(
+            deleteButton
+        );
+
+    });
+
+
+    let balance =
+    totalIncome - totalExpense;
+
+
+    document.getElementById(
+        "totalIncome"
+    ).innerText =
+    totalIncome.toFixed(2);
+
+
+    document.getElementById(
+        "totalExpense"
+    ).innerText =
+    totalExpense.toFixed(2);
+
+
+    document.getElementById(
+        "balance"
+    ).innerText =
+    balance.toFixed(2);
+
+    showMonthSummary();
+
+}
+
+
+function showAllRecords() {
+
+    document.getElementById(
+        "recordMonth"
+    ).value = "";
+
+    showRecords();
+
+}
+
+
+
+/* MONTH SUMMARY + EXPORT */
+
+function getSelectedMonthRecords() {
+    let month = document.getElementById("recordMonth").value;
+    if (!month) {
+        month = getTodayText().slice(0,7);
+    }
+    return {
+        month: month,
+        items: records.filter(function(record) {
+            return record.date && record.date.startsWith(month);
+        })
+    };
+}
+
+function showMonthSummary() {
+    let data = getSelectedMonthRecords();
+    let income = 0;
+    let expense = 0;
+    let categoryTotals = {};
+
+    data.items.forEach(function(record) {
+        income += Number(record.income || 0);
+        expense += Number(record.expense || 0);
+
+        let amount = Number(record.expense || 0);
+        if (amount > 0) {
+            let category = record.category || "📌 Other";
+            categoryTotals[category] = (categoryTotals[category] || 0) + amount;
+        }
+    });
+
+    document.getElementById("monthSummaryTitle").innerText =
+        data.month + " Summary";
+    document.getElementById("monthIncome").innerText = income.toFixed(2);
+    document.getElementById("monthExpense").innerText = expense.toFixed(2);
+    document.getElementById("monthBalance").innerText =
+        (income - expense).toFixed(2);
+
+    let box = document.getElementById("categoryBreakdown");
+    box.innerHTML = "";
+
+    let entries = Object.entries(categoryTotals)
+        .sort(function(a,b) { return b[1] - a[1]; });
+
+    if (entries.length === 0) {
+        box.innerHTML = '<div style="color:#777;">No expense records for this month.</div>';
+        return;
+    }
+
+    entries.forEach(function(entry) {
+        let row = document.createElement("div");
+        row.className = "category-stat";
+
+        let name = document.createElement("span");
+        name.innerText = entry[0];
+
+        let amount = document.createElement("strong");
+        amount.innerText = "$" + Number(entry[1]).toFixed(2);
+
+        row.appendChild(name);
+        row.appendChild(amount);
+        box.appendChild(row);
+    });
+}
+
+function csvCell(value) {
+    let text = String(value == null ? "" : value);
+    return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function exportCSV() {
+    let month = document.getElementById("recordMonth").value;
+    let exportRecords = month
+        ? records.filter(function(record) {
+            return record.date && record.date.startsWith(month);
+        })
+        : records.slice();
+
+    if (exportRecords.length === 0) {
+        alert("No records to export.");
+        return;
+    }
+
+    let rows = [
+        ["Date","Category","Description","Income","Expense"]
+    ];
+
+    exportRecords.forEach(function(record) {
+        rows.push([
+            record.date || "",
+            record.category || "📌 Other",
+            record.description || "",
+            Number(record.income || 0).toFixed(2),
+            Number(record.expense || 0).toFixed(2)
+        ]);
+    });
+
+    let csv = "\uFEFF" + rows.map(function(row) {
+        return row.map(csvCell).join(",");
+    }).join("\r\n");
+
+    let blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.href = url;
+    link.download = month
+        ? "daily-expense-" + month + ".csv"
+        : "daily-expense-all.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+
+/* BORROW / LEND */
+
+function saveBorrowRecords() {
+
+    localStorage.setItem(
+        "borrowRecords",
+        JSON.stringify(borrowRecords)
+    );
+
+}
+
+
+function addBorrowRecord() {
+
+    let date =
+    document.getElementById(
+        "borrowDate"
+    ).value;
+
+    let type =
+    document.getElementById(
+        "borrowType"
+    ).value;
+
+    let name =
+    document.getElementById(
+        "borrowName"
+    ).value.trim();
+
+    let amount =
+    Number(
+        document.getElementById(
+            "borrowAmount"
+        ).value
+    ) || 0;
+
+    let note =
+    document.getElementById(
+        "borrowNote"
+    ).value.trim();
+
+
+    if (!name) {
+
+        alert("Please enter a name.");
+
+        return;
+
+    }
+
+
+    if (amount <= 0) {
+
+        alert("Please enter an amount.");
+
+        return;
+
+    }
+
+
+    borrowRecords.push({
+
+        date: date,
+
+        type: type,
+
+        name: name,
+
+        amount: amount,
+
+        note: note,
+
+        payments: [],
+
+        settled: false
+
+    });
+
+
+    saveBorrowRecords();
+
+    showBorrowRecords();
+
+
+    document.getElementById(
+        "borrowName"
+    ).value = "";
+
+    document.getElementById(
+        "borrowAmount"
+    ).value = "";
+
+    document.getElementById(
+        "borrowNote"
+    ).value = "";
+
+}
+
+
+function getTotalPaid(record) {
+
+    if (!record.payments) {
+        record.payments = [];
+    }
+
+    let total = 0;
+
+    record.payments.forEach(
+        function(payment) {
+
+            total +=
+            Number(payment.amount || 0);
+
+        }
+    );
+
+    return total;
+
+}
+
+
+function addPayment(index) {
+
+    let record = borrowRecords[index];
+    let paid = getTotalPaid(record);
+    let remaining = Math.max(0, Number(record.amount) - paid);
+
+    if (remaining <= 0) {
+        alert("This record is already paid.");
+        return;
+    }
+
+    window.currentPaymentIndex = index;
+    document.getElementById("paymentPerson").innerText = record.name;
+    document.getElementById("paymentRemaining").innerText = remaining.toFixed(2);
+    document.getElementById("paymentDate").value = getTodayText();
+    document.getElementById("paymentAmount").value = "";
+    document.getElementById("paymentAmount").max = remaining;
+    document.getElementById("paymentModal").classList.add("show");
+    setTimeout(function(){ document.getElementById("paymentAmount").focus(); }, 50);
+}
+
+function closePaymentModal(event) {
+    if (event && event.target !== document.getElementById("paymentModal")) return;
+    document.getElementById("paymentModal").classList.remove("show");
+}
+
+function savePayment() {
+    let index = window.currentPaymentIndex;
+    let record = borrowRecords[index];
+    if (!record) return;
+
+    let paid = getTotalPaid(record);
+    let remaining = Math.max(0, Number(record.amount) - paid);
+    let amount = Number(document.getElementById("paymentAmount").value);
+    let paymentDate = document.getElementById("paymentDate").value;
+
+    if (!amount || amount <= 0) { alert("Please enter payment amount."); return; }
+    if (amount > remaining) { alert("Payment cannot be more than remaining amount."); return; }
+    if (!paymentDate) { alert("Please select payment date."); return; }
+
+    if (!record.payments) record.payments = [];
+    record.payments.push({ amount: amount, date: paymentDate });
+
+    if (getTotalPaid(record) >= Number(record.amount)) record.settled = true;
+
+    saveBorrowRecords();
+    showBorrowRecords();
+    document.getElementById("paymentModal").classList.remove("show");
+}
+
+
+function settleBorrow(index) {
+
+    let record =
+    borrowRecords[index];
+
+    let paid =
+    getTotalPaid(record);
+
+    let remaining =
+    Math.max(
+        0,
+        Number(record.amount) - paid
+    );
+
+
+    if (remaining > 0) {
+
+        if (
+            !confirm(
+                "Remaining $" +
+                remaining.toFixed(2) +
+                ". Mark as fully settled?"
+            )
+        ) {
+            return;
+        }
+
+        if (!record.payments) {
+            record.payments = [];
+        }
+
+        record.payments.push({
+
+            amount: remaining,
+
+            date: getTodayText()
+
+        });
+
+    }
+
+
+    record.settled = true;
+
+    saveBorrowRecords();
+
+    showBorrowRecords();
+
+}
+
+
+function deleteBorrow(index) {
+
+    if (
+        !confirm(
+            "Delete this Borrow / Lend record?"
+        )
+    ) {
+        return;
+    }
+
+
+    borrowRecords.splice(index,1);
+
+    saveBorrowRecords();
+
+    showBorrowRecords();
+
+}
+
+
+function showBorrowRecords() {
+
+    let table =
+    document.getElementById(
+        "borrowRecords"
+    );
+
+    table.innerHTML = "";
+
+
+    let theyOwe = 0;
+
+    let iOwe = 0;
+
+
+    borrowRecords.forEach(
+        function(record,index) {
+
+
+            if (!record.payments) {
+                record.payments = [];
+            }
+
+
+            let paid =
+            getTotalPaid(record);
+
+
+            let remaining =
+            Math.max(
+                0,
+                Number(record.amount) - paid
+            );
+
+
+            if (
+                record.settled ||
+                remaining <= 0
+            ) {
+
+                remaining = 0;
+
+            }
+
+
+            if (!record.settled) {
+
+                if (
+                    record.type === "lent"
+                ) {
+
+                    theyOwe += remaining;
+
+                } else {
+
+                    iOwe += remaining;
+
+                }
+
+            }
+
+
+            let history = "";
+
+
+            if (record.note) {
+
+                history += record.note;
+
+            }
+
+
+            record.payments.forEach(
+                function(payment) {
+
+                    if (history) {
+                        history += "\n";
+                    }
+
+                    history +=
+                    "Paid $" +
+                    Number(
+                        payment.amount
+                    ).toFixed(2) +
+                    " on " +
+                    payment.date;
+
+                }
+            );
+
+
+            let row =
+            table.insertRow();
+
+
+            row.insertCell(0).innerText =
+            record.date;
+
+
+            row.insertCell(1).innerText =
+            record.type === "lent"
+            ? "They owe me"
+            : "I owe";
+
+
+            row.insertCell(2).innerText =
+            record.name;
+
+
+            row.insertCell(3).innerText =
+            "$" +
+            Number(
+                record.amount
+            ).toFixed(2);
+
+
+            row.insertCell(4).innerText =
+            "$" + paid.toFixed(2);
+
+
+            row.insertCell(5).innerText =
+            "$" + remaining.toFixed(2);
+
+
+            let historyCell =
+            row.insertCell(6);
+
+            historyCell.innerText =
+            history || "";
+
+
+            row.insertCell(7).innerText =
+            record.settled
+            ? "Settled"
+            : "Unpaid";
+
+
+            let action =
+            row.insertCell(8);
+
+
+            if (!record.settled) {
+
+                let payButton =
+                document.createElement(
+                    "button"
+                );
+
+                payButton.innerText =
+                "Payment";
+
+                payButton.className =
+                "payment-btn";
+
+                payButton.onclick =
+                function() {
+
+                    addPayment(index);
+
+                };
+
+
+                let settleButton =
+                document.createElement(
+                    "button"
+                );
+
+                settleButton.innerText =
+                "Settled";
+
+                settleButton.className =
+                "settle-btn";
+
+                settleButton.onclick =
+                function() {
+
+                    settleBorrow(index);
+
+                };
+
+
+                action.appendChild(
+                    payButton
+                );
+
+                action.appendChild(
+                    settleButton
+                );
+
+            }
+
+
+            let deleteButton =
+            document.createElement(
+                "button"
+            );
+
+            deleteButton.innerText =
+            "Delete";
+
+            deleteButton.className =
+            "delete-btn";
+
+            deleteButton.onclick =
+            function() {
+
+                deleteBorrow(index);
+
+            };
+
+
+            action.appendChild(
+                deleteButton
+            );
+
+        }
+    );
+
+
+    document.getElementById(
+        "theyOwe"
+    ).innerText =
+    theyOwe.toFixed(2);
+
+
+    document.getElementById(
+        "iOwe"
+    ).innerText =
+    iOwe.toFixed(2);
+
+}
+
+
+/* TODAY */
+
+function getTodayText() {
+
+    let today = new Date();
+
+    let year =
+    today.getFullYear();
+
+    let month =
+    String(
+        today.getMonth()+1
+    ).padStart(2,"0");
+
+    let day =
+    String(
+        today.getDate()
+    ).padStart(2,"0");
+
+    return (
+        year +
+        "-" +
+        month +
+        "-" +
+        day
+    );
+
+}
+
+
+let todayText =
+getTodayText();
+
+document.getElementById(
+    "date"
+).value = todayText;
+
+document.getElementById(
+    "borrowDate"
+).value = todayText;
+
+document.getElementById(
+    "recordMonth"
+).value = todayText.slice(0,7);
+
+
+/* START */
+
+showCategories();
+
+showRecords();
+
+showBorrowRecords();
+
+</script>
+
+</body>
+</html>
