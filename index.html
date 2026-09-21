@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Daily Expense</title>
 
 <style>
@@ -322,6 +323,191 @@ th, td {
     }
 
 }
+
+/* FIRST IMPROVEMENT VERSION */
+.export-button {
+    padding: 11px 16px;
+    border: 1px solid #cfd7df;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    margin-left: 8px;
+}
+
+.month-summary {
+    margin-bottom: 22px;
+}
+
+.month-summary h2 {
+    margin: 0 0 14px;
+}
+
+.month-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.month-mini-card {
+    background: #f7f9fb;
+    border: 1px solid #e7ebef;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.month-mini-label {
+    color: #667085;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+.month-mini-number {
+    font-size: 23px;
+    font-weight: bold;
+}
+
+.category-breakdown {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 8px 20px;
+}
+
+.category-stat {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid #edf0f2;
+}
+
+@media(max-width:800px) {
+    body {
+        padding: 12px;
+        background: #f4f7f8;
+    }
+
+    .container {
+        width: 100%;
+    }
+
+    h1 {
+        font-size: 30px;
+        margin: 8px 0 18px;
+    }
+
+    .card {
+        padding: 17px;
+        border-radius: 16px;
+        margin-bottom: 16px;
+    }
+
+    .field {
+        max-width: none;
+    }
+
+    label {
+        font-size: 17px;
+    }
+
+    input, select {
+        min-height: 50px;
+        padding: 13px;
+        font-size: 17px;
+    }
+
+    .categories {
+        display: grid;
+        grid-template-columns: repeat(3,1fr);
+        gap: 8px;
+    }
+
+    .category-button {
+        width: 100%;
+        height: 88px;
+        font-size: 14px;
+    }
+
+    .category-icon {
+        font-size: 27px;
+    }
+
+    .main-button,
+    .manage-button,
+    .filter-button,
+    .export-button {
+        min-height: 48px;
+        font-size: 16px;
+    }
+
+    .main-button {
+        width: 100%;
+    }
+
+    .summary {
+        grid-template-columns: repeat(3,1fr);
+        gap: 8px;
+    }
+
+    .summary-card {
+        padding: 14px 10px;
+        border-radius: 13px;
+    }
+
+    .summary-title {
+        font-size: 13px;
+    }
+
+    .summary-number {
+        font-size: 20px;
+    }
+
+    .record-filter {
+        flex-wrap: wrap;
+        align-items: end;
+    }
+
+    .record-filter input {
+        width: 100%;
+    }
+
+    .record-filter > div {
+        flex: 1 1 100%;
+    }
+
+    .record-filter .filter-button,
+    .record-filter .export-button {
+        flex: 1;
+        margin-left: 0;
+    }
+
+    .month-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-breakdown {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        min-width: 760px;
+        font-size: 14px;
+    }
+
+    .borrow-title {
+        font-size: 24px;
+    }
+
+    .manage-row {
+        grid-template-columns: 65px 1fr;
+    }
+
+    .manage-row > div {
+        grid-column: 1 / -1;
+    }
+}
+
 </style>
 </head>
 
@@ -413,6 +599,30 @@ $<span id="balance">0.00</span>
 
 </div>
 
+<div class="card month-summary">
+<h2><span id="monthSummaryTitle">Monthly Summary</span></h2>
+
+<div class="month-summary-grid">
+<div class="month-mini-card">
+<div class="month-mini-label">Income</div>
+<div class="month-mini-number total-income">$<span id="monthIncome">0.00</span></div>
+</div>
+
+<div class="month-mini-card">
+<div class="month-mini-label">Expense</div>
+<div class="month-mini-number total-expense">$<span id="monthExpense">0.00</span></div>
+</div>
+
+<div class="month-mini-card">
+<div class="month-mini-label">Balance</div>
+<div class="month-mini-number total-balance">$<span id="monthBalance">0.00</span></div>
+</div>
+</div>
+
+<h3>Expense by Category</h3>
+<div id="categoryBreakdown" class="category-breakdown"></div>
+</div>
+
 
 <div class="card records-card">
 
@@ -427,6 +637,10 @@ $<span id="balance">0.00</span>
 
 <button class="filter-button" onclick="showAllRecords()">
 Show All
+</button>
+
+<button class="export-button" onclick="exportCSV()">
+Export Excel / CSV
 </button>
 
 </div>
@@ -1099,6 +1313,8 @@ function showRecords() {
     ).innerText =
     balance.toFixed(2);
 
+    showMonthSummary();
+
 }
 
 
@@ -1110,6 +1326,123 @@ function showAllRecords() {
 
     showRecords();
 
+}
+
+
+
+/* MONTH SUMMARY + EXPORT */
+
+function getSelectedMonthRecords() {
+    let month = document.getElementById("recordMonth").value;
+    if (!month) {
+        month = getTodayText().slice(0,7);
+    }
+    return {
+        month: month,
+        items: records.filter(function(record) {
+            return record.date && record.date.startsWith(month);
+        })
+    };
+}
+
+function showMonthSummary() {
+    let data = getSelectedMonthRecords();
+    let income = 0;
+    let expense = 0;
+    let categoryTotals = {};
+
+    data.items.forEach(function(record) {
+        income += Number(record.income || 0);
+        expense += Number(record.expense || 0);
+
+        let amount = Number(record.expense || 0);
+        if (amount > 0) {
+            let category = record.category || "📌 Other";
+            categoryTotals[category] = (categoryTotals[category] || 0) + amount;
+        }
+    });
+
+    document.getElementById("monthSummaryTitle").innerText =
+        data.month + " Summary";
+    document.getElementById("monthIncome").innerText = income.toFixed(2);
+    document.getElementById("monthExpense").innerText = expense.toFixed(2);
+    document.getElementById("monthBalance").innerText =
+        (income - expense).toFixed(2);
+
+    let box = document.getElementById("categoryBreakdown");
+    box.innerHTML = "";
+
+    let entries = Object.entries(categoryTotals)
+        .sort(function(a,b) { return b[1] - a[1]; });
+
+    if (entries.length === 0) {
+        box.innerHTML = '<div style="color:#777;">No expense records for this month.</div>';
+        return;
+    }
+
+    entries.forEach(function(entry) {
+        let row = document.createElement("div");
+        row.className = "category-stat";
+
+        let name = document.createElement("span");
+        name.innerText = entry[0];
+
+        let amount = document.createElement("strong");
+        amount.innerText = "$" + Number(entry[1]).toFixed(2);
+
+        row.appendChild(name);
+        row.appendChild(amount);
+        box.appendChild(row);
+    });
+}
+
+function csvCell(value) {
+    let text = String(value == null ? "" : value);
+    return '"' + text.replace(/"/g, '""') + '"';
+}
+
+function exportCSV() {
+    let month = document.getElementById("recordMonth").value;
+    let exportRecords = month
+        ? records.filter(function(record) {
+            return record.date && record.date.startsWith(month);
+        })
+        : records.slice();
+
+    if (exportRecords.length === 0) {
+        alert("No records to export.");
+        return;
+    }
+
+    let rows = [
+        ["Date","Category","Description","Income","Expense"]
+    ];
+
+    exportRecords.forEach(function(record) {
+        rows.push([
+            record.date || "",
+            record.category || "📌 Other",
+            record.description || "",
+            Number(record.income || 0).toFixed(2),
+            Number(record.expense || 0).toFixed(2)
+        ]);
+    });
+
+    let csv = "\uFEFF" + rows.map(function(row) {
+        return row.map(csvCell).join(",");
+    }).join("\r\n");
+
+    let blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.href = url;
+    link.download = month
+        ? "daily-expense-" + month + ".csv"
+        : "daily-expense-all.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 
@@ -1688,6 +2021,10 @@ document.getElementById(
 document.getElementById(
     "borrowDate"
 ).value = todayText;
+
+document.getElementById(
+    "recordMonth"
+).value = todayText.slice(0,7);
 
 
 /* START */
